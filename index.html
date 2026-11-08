@@ -11,7 +11,7 @@
 @media(prefers-color-scheme:dark){:root{--bg:#0b1220;--fg:#e8eefb;--card:#131c2e;--ac:#60a5fa;--ac2:#22d3ee;--or:#fbbf24;--mut:#8fa0bd;--bd:#243049}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
 header{background:linear-gradient(120deg,var(--ac),var(--ac2));color:#fff;padding:20px 20px 26px;border-radius:0 0 28px 28px;font-weight:700;font-size:20px;box-shadow:0 8px 24px rgba(37,99,235,.22)}
-main{max-width:760px;margin:0 auto;padding:8px 14px 110px}
+main{max-width:760px;margin:0 auto;padding:8px 14px 150px}
 nav{position:fixed;bottom:10px;left:12px;right:12px;max-width:520px;margin:0 auto;display:flex;background:var(--card);border-radius:26px;box-shadow:0 8px 28px rgba(20,32,58,.18);z-index:5;padding:4px}
 nav button{flex:1;border:0;border-radius:22px;background:none;padding:8px 4px;font-size:12px;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:1px}nav button b{font-size:21px}nav button.on{color:var(--ac);background:var(--bg);font-weight:700}
 button,input,select,textarea{font:inherit;color:inherit;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:9px 13px}
@@ -36,6 +36,8 @@ small{color:var(--mut)}h2{margin:.8em 0 .2em}
 .pb{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px;margin-top:8px}
 dialog{max-width:640px;width:94vw;border:0;border-radius:22px;padding:20px;background:var(--bg);color:var(--fg);box-shadow:0 12px 40px rgba(0,0,0,.3)}
 textarea{width:100%}.tbl{max-height:34vh;overflow:auto}details summary{cursor:pointer;color:var(--mut);margin:8px 0}
+.ob{width:100%;margin-top:12px;padding:13px;background:var(--bg);color:var(--ac);font-size:15px}.panel{background:var(--card);border-radius:14px;padding:10px 14px;margin:10px 0}.hint{background:var(--bg);border-left:4px solid var(--ac);border-radius:14px;padding:12px 14px;margin:12px 0}
+.chev{width:44px;height:44px;padding:0;border-radius:50%;font-size:16px;color:var(--ac);background:var(--bg);flex:none}.chev.sm{width:38px;height:38px;font-size:14px}.link{background:none;border:0;color:var(--ac);padding:4px 0}.ub{position:fixed;bottom:86px;left:0;right:0;display:flex;gap:8px;justify-content:center;z-index:6}.ub button{box-shadow:0 4px 14px rgba(20,32,58,.2)}
 </style></head><body><div id="app"></div><dialog id="dlg"></dialog>
 <script type="module">
 // ===== CONFIGURAZIONE FIREBASE: incolla qui l'oggetto firebaseConfig. Se resta null l'app funziona solo in locale. =====
@@ -52,8 +54,8 @@ const $=s=>document.querySelector(s),uid=()=>Math.random().toString(36).slice(2,
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10),today=()=>iso(new Date()),D=s=>new Date(s+'T12:00:00');
 const DEF={reads:2,reps:2,oral:true,rest:[0],margin:2,gap:1,block:20};
-let S=JSON.parse(localStorage.getItem('pe')||'null')||{exams:[]},tab='oggi',open={},user=null,api=null,ch=null,eb=null,unsub,tm;
-const init=()=>{S.set={...DEF,...S.set};S.exams.forEach(e=>e.books.forEach(b=>b.secs.forEach(s=>{if(!s.p)s.p=Array.from({length:s.n||0},()=>s.b);delete s.n})))};init();
+let S=JSON.parse(localStorage.getItem('pe')||'null')||{exams:[]},tab='oggi',open={},user=null,api=null,ch=null,eb=null,hist=[],fut=[],cur='',hide=false,unsub,tm;
+const init=()=>{S.set={...DEF,...S.set};S.exams.forEach(e=>e.books.forEach(b=>b.secs.forEach(s=>{if(!s.p)s.p=Array.from({length:s.n||0},()=>s.b);delete s.n})))};init();cur=JSON.stringify(S);
 // ===== modello: s.p[i] = ultima pagina raggiunta nel passaggio i (0..R-1 letture, poi ripetizioni orali) =====
 const pg=s=>Math.max(1,s.b-s.a+1),dn=(s,i)=>Math.min(pg(s),Math.max(0,(s.p[i]??s.a-1)-s.a+1));
 const NR=(s,b)=>s.reads??b.reads??S.set.reads,NP=(s,b)=>s.reps??b.reps??(S.set.oral?S.set.reps:0),TT=(s,b)=>NR(s,b)+NP(s,b);
@@ -67,7 +69,16 @@ const ring=p=>`<div class=ring style="--p:${Math.round(p*100)}"><span>${Math.rou
 const bar=p=>`<div class=bar><i style="width:${Math.round(p*100)}%"></i></div>`;
 const F=d=>{const e=S.exams.find(x=>x.id==d.e),b=e?.books.find(x=>x.id==d.b),s=b?.secs.find(x=>x.id==d.s);return{e,b,s}};
 const touch=(s,b)=>{if(s.day?.d!==today())s.day={d:today(),v:sd(s,b)}};
-function save(){localStorage.setItem('pe',JSON.stringify(S));clearTimeout(tm);if(api?.push&&user)tm=setTimeout(()=>api.push(S),500);render()}
+function persist(){localStorage.setItem('pe',cur);clearTimeout(tm);if(api?.push&&user)tm=setTimeout(()=>api.push(S),500)}
+function save(){const n=JSON.stringify(S);if(n!==cur){hist.push(cur);if(hist.length>30)hist.shift();fut=[];cur=n;hide=false}persist();render()}
+const histGo=(from,to)=>{if(!from.length)return;to.push(cur);cur=from.pop();S=JSON.parse(cur);ch=eb=null;dlg();persist();render()};
+const histUndo=()=>histGo(hist,fut),histRedo=()=>histGo(fut,hist);
+const coarse=()=>matchMedia('(pointer:coarse)').matches;
+function undoBar(){const al=localStorage.getItem('peua');if(!coarse()||!(al||((hist.length||fut.length)&&!hide)))return '';
+ return `<div class=ub><button data-a=uundo ${hist.length?'':'disabled'}>↶ Annulla</button><button data-a=uredo ${fut.length?'':'disabled'}>↷ Ripeti</button>${al?'':'<button class=pri data-a=uhide>Fatto</button>'}</div>`}
+document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.target.matches?.('input,textarea,select'))return;const k=e.key.toLowerCase();
+ if(k=='z'&&!e.shiftKey){e.preventDefault();histUndo()}else if(k=='y'||(k=='z'&&e.shiftKey)){e.preventDefault();histRedo()}});
+const errIt=e=>({'auth/invalid-credential':'Email o password non corretta.','auth/wrong-password':'Password non corretta.','auth/user-not-found':'Nessun account con questa email: se è la prima volta, tocca Registrati.','auth/invalid-email':'L\'indirizzo email non è valido.','auth/email-already-in-use':'Questa email è già registrata: tocca Accedi.','auth/weak-password':'La password è troppo corta: servono almeno 6 caratteri.','auth/missing-password':'Inserisci la password.','auth/missing-email':'Inserisci l\'email.','auth/too-many-requests':'Troppi tentativi: attendi qualche minuto e riprova.','auth/network-request-failed':'Problema di connessione: controlla la rete.','auth/user-disabled':'Questo account è stato disattivato.'}[e.code]||'Qualcosa è andato storto, riprova.');
 const studyDays=end=>{let c=0;const d=D(today()),e=D(end);for(;d<=e;d.setDate(d.getDate()+1))if(!S.set.rest.includes(d.getDay()))c++;return Math.max(c,1)};
 
 function cps(as){const T=Math.max(0,...as.map(([s,b])=>TT(s,b))),r=[];
@@ -94,30 +105,31 @@ function vOggi(){const t=today(),ex=S.exams.filter(e=>e.date>=t).sort((a,b)=>a.d
  return h}
 
 function secHTML(e,b,s){const R=NR(s,b),P=NP(s,b),T=R+P,a=act(s,b),ids=`data-e=${e.id} data-b=${b.id} data-s=${s.id}`;
- let h=`<div class=sec><div class=row><b style=flex:1>${esc(s.t)} <small>p.${s.a}–${s.b}</small></b><small>${Math.round(frac(s,b)*100)}%</small><button data-a=ovr ${ids} title="Letture e ripetizioni di questa sezione">⚙</button></div>${bar(frac(s,b))}<div class=chips>`;
+ let h=`<div class=sec><div class=row><b style=flex:1>${esc(s.t)} <small>p.${s.a}–${s.b}</small></b><small>${Math.round(frac(s,b)*100)}%</small><button data-a=sopt ${ids}>⚙ Passaggi</button></div>${s.reads!=null||s.reps!=null?'<small>✎ passaggi personalizzati per questa sezione</small>':''}${bar(frac(s,b))}${open['s'+s.id]?`<div class=panel><div class=row><span style=flex:1>Letture (lettura + riletture)</span><input class=n type=number min=0 placeholder=${b.reads??S.set.reads} value="${s.reads??''}" data-c=sov data-f=reads ${ids}></div><div class=row><span style=flex:1>🗣 Ripetizioni orali (0 = nessuna)</span><input class=n type=number min=0 placeholder=${b.reps??(S.set.oral?S.set.reps:0)} value="${s.reps??''}" data-c=sov data-f=reps ${ids}></div><small>Campo vuoto = valore standard del libro o delle impostazioni (in grigio).</small> <button data-a=sreset ${ids}>Ripristina standard</button></div>`:''}<div class=chips>`;
  for(let i=0;i<T;i++){const st=dn(s,i)>=pg(s)?'ok':i==a?'now':'lock',o=i>=R;
   h+=`<button class="chip ${st} ${o?'oral':''}" ${st=='ok'?`data-a=undo data-i=${i} ${ids} title="Tocca per annullare"`:'disabled'}>${st=='ok'?'✓':o?'🗣':i+1} ${pl(i,R,P)}${o?' <em>facoltativa</em>':''}${st=='now'?' · '+Math.round(dn(s,i)/pg(s)*100)+'%':''}</button>`}
  h+='</div>';
  if(a>=0){const cur=s.p[a]??s.a-1;h+=`<div class=pb>${a>=R?'🗣 Ripetuto fino a':'Letto fino a'} pag. <input class=n type=number min=${s.a-1} max=${s.b} value="${cur<s.a?'':cur}" placeholder="${s.a-1}" data-c=pp data-i=${a} ${ids}> / ${s.b}<input type=range min=${s.a-1} max=${s.b} value=${cur} data-c=pp data-i=${a} ${ids}><button class=pri data-a=upto data-i=${a} data-v=${s.b} ${ids}>${a>=R?'✓ Fatta':'Tutta'}</button></div>`+(a>=R?'<small>Ripetizione orale facoltativa: puoi saltarla con ⚙ (0 ripetizioni).</small>':'')}
  else if(T)h+='<small>✓ Sezione completata</small>';
  return h+'</div>'}
-const bookHTML=(e,b)=>`<div class=sub><div class=row><b style=flex:1>${b.type=='libro'?'📘':'📝'} ${esc(b.title)} <small>${b.author?esc(b.author)+' · ':''}p.${b.from}–${b.to}</small></b><button data-a=edit data-e=${e.id} data-b=${b.id}>✏️</button><button data-a=chap data-e=${e.id} data-b=${b.id}>Capitoli</button><button data-a=delBook data-e=${e.id} data-b=${b.id}>🗑</button></div>${bar(prog(b.secs.map(s=>[s,b])))}
-<div class=row><small>Letture</small><input class=n type=number min=0 placeholder=${S.set.reads} value="${b.reads??''}" data-c=bk data-f=reads data-e=${e.id} data-b=${b.id}><small>Orali (0 = nessuna)</small><input class=n type=number min=0 placeholder=${S.set.oral?S.set.reps:0} value="${b.reps??''}" data-c=bk data-f=reps data-e=${e.id} data-b=${b.id}></div>${b.secs.map(s=>secHTML(e,b,s)).join('')}</div>`;
+const bookHTML=(e,b)=>{const o=open['b'+b.id],ids=`data-e=${e.id} data-b=${b.id}`,p=prog(b.secs.map(s=>[s,b]));
+ return `<div class=sub><div class=row><button class="chev sm" data-a=tbook ${ids}>${o?'▲':'▼'}</button><div style="flex:1;min-width:0;cursor:pointer" data-a=tbook ${ids}><b>${b.type=='libro'?'📘':'📝'} ${esc(b.title)}</b><br><small>${b.author?esc(b.author)+' · ':''}p.${b.from}–${b.to}</small></div><b>${Math.round(p*100)}%</b></div>${bar(p)}`
+ +(o?`<div class=row><button data-a=edit ${ids}>✏️ Modifica</button><button data-a=chap ${ids}>Capitoli</button><button data-a=delBook ${ids}>🗑</button></div><div class=row><small>Letture</small><input class=n type=number min=0 placeholder=${S.set.reads} value="${b.reads??''}" data-c=bk data-f=reads ${ids}><small>Orali (0 = nessuna)</small><input class=n type=number min=0 placeholder=${S.set.oral?S.set.reps:0} value="${b.reps??''}" data-c=bk data-f=reps ${ids}></div>${b.secs.map(s=>secHTML(e,b,s)).join('')}`:'')+'</div>'};
 const addBook=e=>`<div class=sub><b>Aggiungi libro o appunti</b><div class=row><input id=bt-${e.id} placeholder="Titolo"><select id=by-${e.id}><option value=libro>Libro<option value=appunti>Appunti</select></div>
 <details><summary>Autore, editore, anno, ISBN (aiutano la ricerca dei capitoli)</summary><div class=row><input id=ba-${e.id} placeholder=Autore><input id=bp-${e.id} placeholder=Editore></div><div class=row><input id=bn-${e.id} placeholder="Anno"><input id=bi-${e.id} placeholder="ISBN"></div></details>
 <div class=row><input class=n id=bf-${e.id} type=number placeholder="da pag." value=1><input class=n id=bz-${e.id} type=number placeholder="a pag."><button class=pri data-a=addBook data-e=${e.id}>Aggiungi</button></div></div>`;
 function vEsami(){return `<h2>Esami</h2><div class=card><div class=row><input id=xn placeholder="Nome esame"><input id=xd type=date><button class=pri data-a=addExam>Aggiungi</button></div></div>`
- +S.exams.map(e=>{const o=open[e.id];return `<div class=card><div class=row>${ring(prog(allSecs(e)))}<b data-a=toggle data-e=${e.id} style="flex:1;cursor:pointer">${o?'▾':'▸'} ${esc(e.name)}</b><input type=date style="flex:0 0 auto" value=${e.date} data-c=exd data-e=${e.id}><button data-a=renExam data-e=${e.id}>✏️</button><button data-a=delExam data-e=${e.id}>🗑</button></div>${cpHTML(allSecs(e))}`+(o?e.books.map(b=>bookHTML(e,b)).join('')+addBook(e):'')+'</div>'}).join('')}
+ +S.exams.map(e=>{const o=open[e.id];return `<div class=card><div class=row><button class=chev data-a=toggle data-e=${e.id}>${o?'▲':'▼'}</button>${ring(prog(allSecs(e)))}<b data-a=toggle data-e=${e.id} style="flex:1;cursor:pointer">${esc(e.name)}</b><input type=date style="flex:0 0 auto" value=${e.date} data-c=exd data-e=${e.id}><button data-a=renExam data-e=${e.id}>✏️</button><button data-a=delExam data-e=${e.id}>🗑</button></div>${cpHTML(allSecs(e))}`+(o?e.books.map(b=>bookHTML(e,b)).join('')+addBook(e):'')+'</div>'}).join('')}
 function vSet(){const s=S.set,f=(k,l)=>`<div class=row><span style=flex:1>${l}</span><input class=n type=number min=0 value=${s[k]} data-c=set data-f=${k}></div>`;
- return `<h2>Impostazioni</h2><div class=card>${f('reads','Letture per sezione (lettura + riletture)')}
+ return `<h2>Impostazioni</h2><div class=card><small>Valori standard: puoi cambiarli per ogni libro e per ogni capitolo (⚙ Passaggi).</small>${f('reads','Letture per sezione (lettura + riletture)')}
  <div class=row><label style=flex:1><input type=checkbox ${s.oral?'checked':''} data-c=oral> 🗣 Ripetizione orale (facoltativa)</label><input class=n type=number min=1 value=${s.reps} data-c=set data-f=reps></div>
  ${f('gap','Giorni minimi tra due passaggi della stessa sezione dopo le letture')}${f('margin','Giorni di margine prima dell\'esame')}${f('block','Pagine per blocco (se i capitoli sono disattivati)')}
  <div class=row><span>Giorni di riposo:</span>${['Dom','Lun','Mar','Mer','Gio','Ven','Sab'].map((n,i)=>`<label><input type=checkbox ${s.rest.includes(i)?'checked':''} data-c=rest data-i=${i}> ${n}</label>`).join(' ')}</div></div>
- <div class=card><div class=row><button data-a=exp>Esporta backup JSON</button><label>Importa: <input type=file accept=.json data-c=imp></label></div>
+ <div class=card>${coarse()?`<label><input type=checkbox ${localStorage.getItem('peua')?'checked':''} data-c=ua> Tieni sempre visibili le frecce Annulla/Ripeti</label>`:'<small>Tornare indietro: Ctrl+Z annulla, Ctrl+Y (o Ctrl+Maiusc+Z) ripete. Su Mac Cmd al posto di Ctrl.</small>'}</div><div class=card><div class=row><button data-a=exp>Esporta backup JSON</button><label>Importa: <input type=file accept=.json data-c=imp></label></div>
  <p><small>${FIREBASE_CONFIG?`Sincronizzato come ${esc(user?.email)}`:'Modalità solo locale: configura Firebase per sincronizzare.'}</small></p>${FIREBASE_CONFIG?'<button data-a=out>Esci</button>':''}</div>`}
 function render(){const a=$('#app'),y=scrollY;
- if(FIREBASE_CONFIG&&!user){a.innerHTML=`<header>📚 Planner Esami</header><main><div class=card><div class=row><input id=em type=email placeholder=Email></div><div class=row><input id=pw type=password placeholder=Password></div><div class=row><button class=pri data-a=login>Accedi</button><button data-a=reg>Crea account</button></div></div></main>`;return}
- a.innerHTML=`<header>📚 Planner Esami</header><main>${{oggi:vOggi,esami:vEsami,impostazioni:vSet}[tab]()}</main><nav>${[['oggi','🎯','Oggi'],['esami','📚','Esami'],['impostazioni','⚙️','Impostazioni']].map(([t,i,l])=>`<button data-a=tab data-t=${t} class="${tab==t?'on':''}"><b>${i}</b>${l}</button>`).join('')}</nav>`;scrollTo(0,y)}
+ if(FIREBASE_CONFIG&&!user){a.innerHTML=`<header>📚 Planner Esami</header><main><div class=card><h2 style="margin-top:0">Benvenuto 👋</h2><div class=hint>Se è la prima volta che sei qui, inserisci la tua mail e inventa una password; poi, schiaccia su <b>Registrati</b>.</div><div class=row><input id=em type=email placeholder=Email autocomplete=email></div><div class=row><input id=pw type=password placeholder="Password (almeno 6 caratteri)" autocomplete=current-password></div><div class=row><button class=pri data-a=login style="flex:1">Accedi</button><button data-a=reg style="flex:1">Registrati</button></div><div class=row><button class=link data-a=forgot>Password dimenticata?</button></div></div></main>`;return}
+ a.innerHTML=`<header>📚 Planner Esami</header><main>${{oggi:vOggi,esami:vEsami,impostazioni:vSet}[tab]()}</main><nav>${[['oggi','🎯','Oggi'],['esami','📚','Esami'],['impostazioni','⚙️','Impostazioni']].map(([t,i,l])=>`<button data-a=tab data-t=${t} class="${tab==t?'on':''}"><b>${i}</b>${l}</button>`).join('')}</nav>${undoBar()}`;scrollTo(0,y)}
 
 // ===== capitoli =====
 function mk(list){const{from,to}=ch.b,l=list.filter(x=>x.a==null||(x.a>=from&&x.a<=to));
@@ -156,8 +168,7 @@ const H={
   e.books.push(b);save();if(b.type=='libro')H.chap({e:e.id,b:b.id})},
  delBook:d=>{const{e}=F(d);if(confirm('Eliminare?')){e.books=e.books.filter(b=>b.id!=d.b);save()}},
  upto:d=>setP(d,+d.v),undo:d=>{const{s}=F(d);s.p.length=Math.min(s.p.length,+d.i);save()},
- ovr:d=>{const{b,s}=F(d),v=prompt('Letture,ripetizioni orali per questa sezione (es. 3,0: 0 = nessuna ripetizione orale). Vuoto = valori del libro/predefiniti.',`${NR(s,b)},${NP(s,b)}`);if(v===null)return;
-  const m=v.split(',').map(x=>parseInt(x));if(v.trim()==''){s.reads=s.reps=null}else if(m.length==2&&m.every(x=>x>=0)){s.reads=m[0];s.reps=m[1]}save()},
+ sopt:d=>{const k='s'+d.s;open[k]=!open[k];render()},sreset:d=>{const{s}=F(d);s.reads=s.reps=null;save()},
  chap:d=>{const{e,b}=F(d);ch={e,b,rows:b.secs.map(s=>({t:s.t,a:s.a,b:s.b})),msg:'',cands:null};dlg()},
  search,use:d=>{const c=ch.cands[+d.i];ch.rows=mk(c.toc);ch.msg='Indice caricato: controlla titoli e pagine.'+(c.toc.some(x=>!x.a)?' ⚠ Mancano alcune pagine: completale o incolla l\'indice.':'');dlg()},
  blocks:()=>{const{from,to}=ch.b,N=Math.max(1,S.set.block);ch.rows=[];for(let a=from;a<=to;a+=N)ch.rows.push({t:`Pag. ${a}–${Math.min(a+N-1,to)}`,a,b:Math.min(a+N-1,to)});ch.msg='Blocchi generati.';dlg()},
@@ -167,6 +178,8 @@ const H={
  ok:()=>{const r=ch.rows;if(!r.length||r.some(x=>!x.t||!x.a||!x.b||x.b<x.a||x.a<ch.b.from||x.b>ch.b.to))return alert('Ogni riga ha bisogno di titolo e pagine valide, comprese tra '+ch.b.from+' e '+ch.b.to+'.');
   const old=ch.b.secs;if(old.some(s=>s.p.length)&&!confirm('I progressi si mantengono solo per le sezioni con le stesse pagine. Continuare?'))return;
   ch.b.secs=r.map(x=>{const o=old.find(s=>s.a==x.a&&s.b==x.b);return o?{...o,t:x.t}:{id:uid(),t:x.t,a:x.a,b:x.b,p:[],last:''}});ch=null;dlg();save()},
+ tbook:d=>{const k='b'+d.b;open[k]=!open[k];render()},uundo:()=>histUndo(),uredo:()=>histRedo(),uhide:()=>{hide=true;render()},
+ forgot:()=>{const m=$('#em').value.trim();if(!m)return alert('Scrivi la tua email nel campo Email, poi tocca di nuovo "Password dimenticata?".');api.reset(m).then(()=>alert('Se l\'indirizzo è registrato, riceverai un\'email con il link per scegliere una nuova password. Controlla anche lo spam.')).catch(e=>alert(errIt(e)))},
  renExam:d=>{const{e}=F(d),n=prompt('Nome esame',e.name);if(n?.trim()){e.name=n.trim();save()}},
  edit:d=>{const{e,b}=F(d);eb={e,b};dlg()},ecancel:()=>{eb=null;dlg()},
  esave:()=>{const g=k=>$('#'+k).value.trim(),t=g('et'),f=+g('ef'),z=+g('ez');if(!t||!f||!z||z<f)return alert('Inserisci titolo e pagine valide.');
@@ -175,10 +188,10 @@ const H={
    else{eb=null;save();H.chap({e:e.id,b:b.id});ch.msg='Hai cambiato le pagine del libro: adegua i capitoli alle nuove pagine, poi conferma.';return dlg()}}
   if(b.secs.length==1&&b.secs[0].t==ot)b.secs[0].t=t;eb=null;dlg();save()},
  exp:()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='planner-backup.json';a.click()},
- login:()=>api.login($('#em').value,$('#pw').value).catch(e=>alert(e.message)),reg:()=>api.reg($('#em').value,$('#pw').value).catch(e=>alert(e.message)),out:()=>api.out()};
+ login:()=>api.login($('#em').value.trim(),$('#pw').value).catch(e=>alert(errIt(e))),reg:()=>api.reg($('#em').value.trim(),$('#pw').value).catch(e=>alert(errIt(e))),out:()=>api.out()};
 const C={
- pp:(d,v)=>setP(d,v===''?-1e9:+v),bk:(d,v)=>{const{b}=F(d);b[d.f]=v===''?null:Math.max(0,+v);save()},set:(d,v)=>{S.set[d.f]=Math.max(0,+v);save()},
- oral:(d,v,el)=>{S.set.oral=el.checked;save()},rest:(d,v,el)=>{const r=S.set.rest,i=+d.i;S.set.rest=el.checked?[...r,i]:r.filter(x=>x!=i);save()},
+ sov:(d,v)=>{const{s}=F(d);s[d.f]=v===''?null:Math.max(0,+v);save()},pp:(d,v)=>setP(d,v===''?-1e9:+v),bk:(d,v)=>{const{b}=F(d);b[d.f]=v===''?null:Math.max(0,+v);save()},set:(d,v)=>{S.set[d.f]=Math.max(0,+v);save()},
+ ua:(d,v,el)=>{localStorage.setItem('peua',el.checked?'1':'');render()},oral:(d,v,el)=>{S.set.oral=el.checked;save()},rest:(d,v,el)=>{const r=S.set.rest,i=+d.i;S.set.rest=el.checked?[...r,i]:r.filter(x=>x!=i);save()},
  exd:(d,v)=>{F(d).e.date=v;save()},row:(d,v)=>{ch.rows[+d.i][d.f]=d.f=='t'?v:(v===''?null:+v)},
  imp:(d,v,el)=>{const f=el.files[0];if(!f)return;f.text().then(t=>{try{S=JSON.parse(t);init();save()}catch{alert('File non valido.')}})}};
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el)H[el.dataset.a]?.(el.dataset)});
@@ -189,10 +202,10 @@ document.addEventListener('input',e=>{const el=e.target;if(el.dataset.c=='pp'){c
 async function cloud(){if(!FIREBASE_CONFIG)return;const V='https://www.gstatic.com/firebasejs/10.12.2/';
  const[A,Au,Fs]=await Promise.all([import(V+'firebase-app.js'),import(V+'firebase-auth.js'),import(V+'firebase-firestore.js')]);
  const app=A.initializeApp(FIREBASE_CONFIG),auth=Au.getAuth(app),db=Fs.initializeFirestore(app,{localCache:Fs.persistentLocalCache({tabManager:Fs.persistentMultipleTabManager()})});
- api={login:(e,p)=>Au.signInWithEmailAndPassword(auth,e,p),reg:(e,p)=>Au.createUserWithEmailAndPassword(auth,e,p),out:()=>Au.signOut(auth)};
+ api={login:(e,p)=>Au.signInWithEmailAndPassword(auth,e,p),reg:(e,p)=>Au.createUserWithEmailAndPassword(auth,e,p),out:()=>Au.signOut(auth),reset:e=>Au.sendPasswordResetEmail(auth,e)};
  Au.onAuthStateChanged(auth,u=>{user=u;unsub?.();if(!u)return render();const ref=Fs.doc(db,'users',u.uid);
   api.push=s=>Fs.setDoc(ref,{json:JSON.stringify(s),ts:Date.now()});
   unsub=Fs.onSnapshot(ref,sn=>{if(sn.metadata.hasPendingWrites)return;
-   if(sn.exists()){S=JSON.parse(sn.data().json);init();localStorage.setItem('pe',JSON.stringify(S));if(S.exams.some(e=>e.books.some(b=>b.secs.some(s=>s.n!==undefined))))api.push(S)}else api.push(S);render()})})}
+   if(sn.exists()){S=JSON.parse(sn.data().json);init();cur=JSON.stringify(S);hist=[];fut=[];localStorage.setItem('pe',cur);if(S.exams.some(e=>e.books.some(b=>b.secs.some(s=>s.n!==undefined))))api.push(S)}else api.push(S);render()})})}
 render();cloud();if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 </script></body></html>
