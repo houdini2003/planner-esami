@@ -3,25 +3,39 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Planner Esami</title>
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg">
-<meta name="theme-color" content="#2f5d50">
+<meta name="theme-color" content="#0f8f7a">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f3f5f2;--fg:#1d2420;--card:#fff;--ac:#2f5d50;--ac2:#d98f2b;--mut:#66726b;--bd:#dde3de}
-@media(prefers-color-scheme:dark){:root{--bg:#141a17;--fg:#e6ece8;--card:#1d2621;--ac:#5fa88f;--mut:#93a39a;--bd:#2b3a33}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 Georgia,'Times New Roman',serif}
-header{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--bd);padding:8px 12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;z-index:2}
-nav{display:flex;gap:4px;margin-left:auto}main{max-width:760px;margin:0 auto;padding:12px}
-button,input,select,textarea{font:inherit;color:inherit;background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:6px 10px}
-button{cursor:pointer}button.on,button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
-input{min-width:0}input.n{width:60px}.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0}.row input:not(.n){flex:1}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;margin:10px 0}
-.sub{border-top:1px dashed var(--bd);margin-top:10px;padding-top:8px}.sec{padding:4px 0 4px 10px;border-left:3px solid var(--bd)}
-.bar{height:7px;background:var(--bd);border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac2)}
-.bar+small{color:var(--mut)}small{color:var(--mut)}h2{margin:.4em 0}
-.done{opacity:.55;text-decoration:line-through}dialog{max-width:640px;width:94vw;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--fg)}
-textarea{width:100%}.tbl{max-height:38vh;overflow:auto}
+:root{--bg:#f2f6f5;--fg:#16221f;--card:#fff;--ac:#10a37f;--ac2:#0b7a8a;--or:#8b5cf6;--mut:#6a7b76;--bd:#e0e8e5}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1715;--fg:#e8f0ed;--card:#18231f;--ac:#2fc9a3;--ac2:#27a3b3;--or:#a78bfa;--mut:#95a9a2;--bd:#2a3a35}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+header{background:linear-gradient(120deg,#10a37f,#0b7a8a);color:#fff;padding:14px 16px;font-weight:700;font-size:18px}
+main{max-width:760px;margin:0 auto;padding:12px 12px 90px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--bd);z-index:5;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;border-radius:0;background:none;padding:9px 4px;font-size:12px;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:1px}nav button b{font-size:21px}nav button.on{color:var(--ac);font-weight:700}
+button,input,select,textarea{font:inherit;color:inherit;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px 11px}
+button{cursor:pointer;font-weight:600}button:disabled{cursor:default}
+button.pri{background:linear-gradient(120deg,var(--ac),var(--ac2));color:#fff;border:0}
+input{min-width:0}input.n{width:68px;text-align:center}input[type=range]{flex:1;min-width:120px;padding:0;accent-color:var(--ac)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:5px 0}.row input:not(.n):not([type=range]):not([type=checkbox]){flex:1}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;margin:12px 0;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.sub{border-top:1px dashed var(--bd);margin-top:12px;padding-top:10px}.sec{background:var(--bg);border-radius:12px;padding:10px;margin:8px 0}
+.item{background:var(--bg);border-radius:12px;padding:10px;margin:8px 0}
+.bar{height:8px;background:var(--bd);border-radius:5px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:5px}
+small{color:var(--mut)}h2{margin:.5em 0}
+.ring{--p:0;flex:none;width:56px;height:56px;border-radius:50%;background:conic-gradient(var(--ac) calc(var(--p)*1%),var(--bd) 0);display:grid;place-items:center}
+.ring span{width:44px;height:44px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-size:12px;font-weight:700}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.chip{border-radius:20px;padding:5px 11px;font-size:13px}
+.chip.ok{background:var(--ac);color:#fff;border-color:var(--ac)}.chip.now{border:2px solid var(--ac);color:var(--ac)}.chip.lock{color:var(--mut);opacity:.6}
+.chip.oral{border-style:dashed;border-color:var(--or)}.chip.oral.ok{background:var(--or);color:#fff}.chip.oral.now{color:var(--or);border:2px dashed var(--or)}
+.chip em{font-style:normal;font-size:11px;opacity:.8}.tag{font-size:12px;font-weight:600;color:var(--ac)}.tag.oral{color:var(--or)}
+.pb{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px}
+dialog{max-width:640px;width:94vw;border:1px solid var(--bd);border-radius:16px;background:var(--bg);color:var(--fg)}
+textarea{width:100%}.tbl{max-height:34vh;overflow:auto}details summary{cursor:pointer;color:var(--mut)}
 </style></head><body><div id="app"></div><dialog id="dlg"></dialog>
 <script type="module">
-// ===== CONFIGURAZIONE FIREBASE: incolla qui l'oggetto firebaseConfig (vedi README). Se resta null l'app funziona solo in locale. =====
+// ===== CONFIGURAZIONE FIREBASE: incolla qui l'oggetto firebaseConfig. Se resta null l'app funziona solo in locale. =====
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDhlsiW65Nc9fHK1nbuT_XO3J2bKLdmYVc",
     authDomain: "planner-esami.firebaseapp.com",
@@ -30,100 +44,122 @@ const FIREBASE_CONFIG = {
     messagingSenderId: "622617303088",
     appId: "1:622617303088:web:0be54f941f8244440335f5"
   };
-// ==========================================================================================================================
+// ========================================================================================================================
 const $=s=>document.querySelector(s),uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10),today=()=>iso(new Date()),D=s=>new Date(s+'T12:00:00');
-const DEF={reads:2,reps:2,rest:[0],margin:2,gap:1,block:20};
-let S=JSON.parse(localStorage.getItem('pe')||'null')||{exams:[]};S.set={...DEF,...S.set};
-let tab='oggi',open={},user=null,api=null,ch=null,unsub,tm;
-const pg=s=>Math.max(1,s.b-s.a+1),RD=(s,b)=>s.reads??b.reads??S.set.reads,RP=(s,b)=>s.reps??b.reps??S.set.reps,TT=(s,b)=>RD(s,b)+RP(s,b);
-const prog=l=>{let w=0,p=0;l.forEach(([s,b])=>{const t=TT(s,b)||1;w+=pg(s);p+=pg(s)*Math.min(s.n,t)/t});return w?p/w:0};
+const DEF={reads:2,reps:2,oral:true,rest:[0],margin:2,gap:1,block:20};
+let S=JSON.parse(localStorage.getItem('pe')||'null')||{exams:[]},tab='oggi',open={},user=null,api=null,ch=null,unsub,tm;
+const init=()=>{S.set={...DEF,...S.set};S.exams.forEach(e=>e.books.forEach(b=>b.secs.forEach(s=>{if(!s.p)s.p=Array.from({length:s.n||0},()=>s.b);delete s.n})))};init();
+// ===== modello: s.p[i] = ultima pagina raggiunta nel passaggio i (0..R-1 letture, poi ripetizioni orali) =====
+const pg=s=>Math.max(1,s.b-s.a+1),dn=(s,i)=>Math.min(pg(s),Math.max(0,(s.p[i]??s.a-1)-s.a+1));
+const NR=(s,b)=>s.reads??b.reads??S.set.reads,NP=(s,b)=>s.reps??b.reps??(S.set.oral?S.set.reps:0),TT=(s,b)=>NR(s,b)+NP(s,b);
+const sd=(s,b)=>{let x=0;for(let i=0;i<TT(s,b);i++)x+=dn(s,i);return x};
+const frac=(s,b)=>{const t=TT(s,b);return t?sd(s,b)/pg(s)/t:0};
+const act=(s,b)=>{const t=TT(s,b);for(let i=0;i<t;i++)if(dn(s,i)<pg(s))return i;return -1};
+const prog=l=>{let w=0,p=0;l.forEach(([s,b])=>{w+=pg(s);p+=pg(s)*frac(s,b)});return w?p/w:0};
 const allSecs=e=>e.books.flatMap(b=>b.secs.map(s=>[s,b]));
-const bar=p=>`<div class=bar><i style="width:${Math.round(p*100)}%"></i></div><small>${Math.round(p*100)}%</small>`;
+const pl=(i,R,P)=>i==0?'Lettura':i<R?(R>2?`Rilettura ${i}`:'Rilettura'):`Ripetizione orale${P>1?' '+(i-R+1):''}`;
+const ring=p=>`<div class=ring style="--p:${Math.round(p*100)}"><span>${Math.round(p*100)}%</span></div>`;
+const bar=p=>`<div class=bar><i style="width:${Math.round(p*100)}%"></i></div>`;
 const F=d=>{const e=S.exams.find(x=>x.id==d.e),b=e?.books.find(x=>x.id==d.b),s=b?.secs.find(x=>x.id==d.s);return{e,b,s}};
+const touch=(s,b)=>{if(s.day?.d!==today())s.day={d:today(),v:sd(s,b)}};
 function save(){localStorage.setItem('pe',JSON.stringify(S));clearTimeout(tm);if(api?.push&&user)tm=setTimeout(()=>api.push(S),500);render()}
-const label=(s,b)=>{const R=RD(s,b),t=TT(s,b);return s.n>=t?'✓ Completa':s.n<R?`Lettura ${s.n+1}/${R}`:`Ripetizione ${s.n-R+1}/${RP(s,b)}`};
 const studyDays=end=>{let c=0;const d=D(today()),e=D(end);for(;d<=e;d.setDate(d.getDate()+1))if(!S.set.rest.includes(d.getDay()))c++;return Math.max(c,1)};
 
-function vOggi(){const t=today(),ex=S.exams.filter(e=>e.date>=t).sort((a,b)=>a.date<b.date?-1:1);
- let h='<h2>Oggi</h2>';if(!ex.length)return h+'<p>Aggiungi un esame nella scheda Esami.</p>';
- for(const e of ex){const all=allSecs(e),end=iso(new Date(D(e.date).getTime()-S.set.margin*864e5)),days=studyDays(end<t?t:end);
-  const left=Math.round((D(e.date)-D(t))/864e5);
-  const rem=all.reduce((x,[s,b])=>x+pg(s)*(TT(s,b)-Math.min(s.n,TT(s,b))),0);
-  const dn=all.filter(([s])=>s.last===t);const dp=dn.reduce((x,[s])=>x+pg(s),0);
-  const target=Math.ceil((rem+dp)/days);let acc=dp;
-  const cand=all.filter(([s,b])=>s.n<TT(s,b)&&s.last!==t&&(s.n<RD(s,b)||!s.last||(D(t)-D(s.last))/864e5>=S.set.gap)).sort((x,y)=>x[0].n-y[0].n);
-  const todo=[];for(const c of cand){if(acc>=target)break;todo.push(c);acc+=pg(c[0])}
-  const row=([s,b],d)=>{const ids=`data-e=${e.id} data-b=${b.id} data-s=${s.id}`;
-   return `<div class="row ${d?'done':''}"><button ${d?'disabled':''} data-a=${d?'dec':'inc'} ${ids}>${d?'✓':'☐'}</button><span style=flex:1>${esc(s.t)} <small>${esc(b.title)} · p.${s.a}–${s.b}</small></span><small>${d?'fatto':label(s,b)}</small></div>`};
-  h+=`<div class=card><b>${esc(e.name)}</b> <small>tra ${left} giorni · obiettivo di oggi: ~${target} pagine${end<t?' · margine di sicurezza superato':''}</small>${bar(prog(all))}`
-   +dn.map(x=>row(x,1)).join('')+todo.map(x=>row(x,0)).join('')
-   +(!todo.length&&!dn.length?'<p><small>Niente da fare oggi (ripetizioni in attesa di distanziamento, oppure tutto completato).</small></p>':'')+'</div>'}
+function vOggi(){const t=today(),ex=S.exams.filter(e=>e.date>=t).sort((a,b)=>a.date<b.date?-1:1),g=prog(S.exams.flatMap(allSecs));
+ let h=`<div class=card><div class=row>${ring(g)}<div><b>Progresso generale</b><br><small>Letture, riletture e ripetizioni orali di tutti gli esami</small></div></div></div>`;
+ if(!ex.length)return h+'<p>Aggiungi un esame nella scheda Esami.</p>';
+ for(const e of ex){const as=allSecs(e),end=iso(new Date(D(e.date).getTime()-S.set.margin*864e5)),days=studyDays(end<t?t:end),left=Math.round((D(e.date)-D(t))/864e5);
+  const rem=as.reduce((x,[s,b])=>x+pg(s)*TT(s,b)*(1-frac(s,b)),0),dt=as.reduce((x,[s,b])=>x+(s.day?.d===t?Math.max(0,sd(s,b)-s.day.v):0),0);
+  const target=Math.ceil((rem+dt)/days);let need=target-dt;
+  const cand=as.filter(([s,b])=>{const a=act(s,b);return a>=0&&(a<NR(s,b)||s.day?.d===t||!s.last||(D(t)-D(s.last))/864e5>=S.set.gap)}).sort((x,y)=>act(...x)-act(...y));
+  const items=[];for(const[s,b]of cand){if(need<=0)break;const a=act(s,b),st=s.a+dn(s,a),tk=Math.min(s.b-st+1,need);items.push({s,b,a,st,en:st+tk-1});need-=tk}
+  h+=`<div class=card><div class=row>${ring(prog(as))}<div><b>${esc(e.name)}</b><br><small>tra ${left} giorni · oggi circa ${target} pagine${end<t?' · margine di sicurezza superato':''}</small></div></div>`
+   +items.map(({s,b,a,st,en})=>{const R=NR(s,b),P=NP(s,b),ids=`data-e=${e.id} data-b=${b.id} data-s=${s.id}`;
+    return `<div class=item><div class=row><b style=flex:1>${esc(s.t)}</b><small>${esc(b.title)}</small></div><div class=row><span class="tag ${a>=R?'oral':''}">${a>=R?'🗣 ':''}${pl(a,R,P)}${a>=R?' (facoltativa)':''}</span><span style=flex:1>pag. ${st}–${en}</span><button class=pri data-a=upto data-i=${a} data-v=${en} ${ids}>✓ Fatto fino a ${en}</button></div></div>`}).join('')
+   +(!items.length?`<p><small>${dt>0&&need<=0?'🎉 Obiettivo di oggi raggiunto!':'Niente da fare oggi (ripetizioni in attesa di distanziamento, oppure tutto completato).'}</small></p>`:need<=0&&dt>0?'':'')+'</div>'}
  return h}
 
-const bookHTML=(e,b)=>`<div class=sub><div class=row><b style=flex:1>${b.type=='libro'?'📘':'📝'} ${esc(b.title)} <small>p.${b.from}–${b.to}</small></b><button data-a=chap data-e=${e.id} data-b=${b.id}>Capitoli</button><button data-a=delBook data-e=${e.id} data-b=${b.id}>🗑</button></div>${bar(prog(b.secs.map(s=>[s,b])))}
-<div class=row><small>Letture</small><input class=n type=number min=0 placeholder=${S.set.reads} value="${b.reads??''}" data-c=bk data-f=reads data-e=${e.id} data-b=${b.id}><small>Ripetizioni</small><input class=n type=number min=0 placeholder=${S.set.reps} value="${b.reps??''}" data-c=bk data-f=reps data-e=${e.id} data-b=${b.id}></div>
-${b.secs.map(s=>{const t=TT(s,b),ids=`data-e=${e.id} data-b=${b.id} data-s=${s.id}`;return `<div class=sec><div class=row><span style=flex:1>${esc(s.t)} <small>p.${s.a}–${s.b}</small></span><small>${label(s,b)} · ${s.n}/${t}</small><button data-a=dec ${ids}>−</button><button data-a=inc ${ids}>+</button><button data-a=ovr ${ids}>⚙</button></div>${bar(Math.min(s.n,t)/(t||1))}</div>`}).join('')}</div>`;
-const addBook=e=>`<div class=sub><b>Aggiungi libro o appunti</b><div class=row><input id=bt-${e.id} placeholder="Titolo"><select id=by-${e.id}><option value=libro>Libro<option value=appunti>Appunti</select></div><div class=row><input class=n id=bf-${e.id} type=number placeholder="da pag." value=1><input class=n id=bz-${e.id} type=number placeholder="a pag."><button class=pri data-a=addBook data-e=${e.id}>Aggiungi</button></div></div>`;
+function secHTML(e,b,s){const R=NR(s,b),P=NP(s,b),T=R+P,a=act(s,b),ids=`data-e=${e.id} data-b=${b.id} data-s=${s.id}`;
+ let h=`<div class=sec><div class=row><b style=flex:1>${esc(s.t)} <small>p.${s.a}–${s.b}</small></b><small>${Math.round(frac(s,b)*100)}%</small><button data-a=ovr ${ids} title="Letture e ripetizioni di questa sezione">⚙</button></div>${bar(frac(s,b))}<div class=chips>`;
+ for(let i=0;i<T;i++){const st=dn(s,i)>=pg(s)?'ok':i==a?'now':'lock',o=i>=R;
+  h+=`<button class="chip ${st} ${o?'oral':''}" ${st=='ok'?`data-a=undo data-i=${i} ${ids} title="Tocca per annullare"`:'disabled'}>${st=='ok'?'✓':o?'🗣':i+1} ${pl(i,R,P)}${o?' <em>facoltativa</em>':''}${st=='now'?' · '+Math.round(dn(s,i)/pg(s)*100)+'%':''}</button>`}
+ h+='</div>';
+ if(a>=0){const cur=s.p[a]??s.a-1;h+=`<div class=pb>${a>=R?'🗣 Ripetuto fino a':'Letto fino a'} pag. <input class=n type=number min=${s.a-1} max=${s.b} value="${cur<s.a?'':cur}" placeholder="${s.a-1}" data-c=pp data-i=${a} ${ids}> / ${s.b}<input type=range min=${s.a-1} max=${s.b} value=${cur} data-c=pp data-i=${a} ${ids}><button class=pri data-a=upto data-i=${a} data-v=${s.b} ${ids}>${a>=R?'✓ Fatta':'Tutta'}</button></div>`+(a>=R?'<small>Ripetizione orale facoltativa: puoi saltarla con ⚙ (0 ripetizioni).</small>':'')}
+ else if(T)h+='<small>✓ Sezione completata</small>';
+ return h+'</div>'}
+const bookHTML=(e,b)=>`<div class=sub><div class=row><b style=flex:1>${b.type=='libro'?'📘':'📝'} ${esc(b.title)} <small>${b.author?esc(b.author)+' · ':''}p.${b.from}–${b.to}</small></b><button data-a=chap data-e=${e.id} data-b=${b.id}>Capitoli</button><button data-a=delBook data-e=${e.id} data-b=${b.id}>🗑</button></div>${bar(prog(b.secs.map(s=>[s,b])))}
+<div class=row><small>Letture</small><input class=n type=number min=0 placeholder=${S.set.reads} value="${b.reads??''}" data-c=bk data-f=reads data-e=${e.id} data-b=${b.id}><small>Orali (0 = nessuna)</small><input class=n type=number min=0 placeholder=${S.set.oral?S.set.reps:0} value="${b.reps??''}" data-c=bk data-f=reps data-e=${e.id} data-b=${b.id}></div>${b.secs.map(s=>secHTML(e,b,s)).join('')}</div>`;
+const addBook=e=>`<div class=sub><b>Aggiungi libro o appunti</b><div class=row><input id=bt-${e.id} placeholder="Titolo"><select id=by-${e.id}><option value=libro>Libro<option value=appunti>Appunti</select></div>
+<details><summary>Autore, editore, anno, ISBN (aiutano la ricerca dei capitoli)</summary><div class=row><input id=ba-${e.id} placeholder=Autore><input id=bp-${e.id} placeholder=Editore></div><div class=row><input id=bn-${e.id} placeholder="Anno"><input id=bi-${e.id} placeholder="ISBN"></div></details>
+<div class=row><input class=n id=bf-${e.id} type=number placeholder="da pag." value=1><input class=n id=bz-${e.id} type=number placeholder="a pag."><button class=pri data-a=addBook data-e=${e.id}>Aggiungi</button></div></div>`;
 function vEsami(){return `<h2>Esami</h2><div class=card><div class=row><input id=xn placeholder="Nome esame"><input id=xd type=date><button class=pri data-a=addExam>Aggiungi</button></div></div>`
- +S.exams.map(e=>{const o=open[e.id];return `<div class=card><div class=row><b data-a=toggle data-e=${e.id} style="flex:1;cursor:pointer">${o?'▾':'▸'} ${esc(e.name)}</b><input type=date style="flex:0 0 auto" value=${e.date} data-c=exd data-e=${e.id}><button data-a=delExam data-e=${e.id}>🗑</button></div>${bar(prog(allSecs(e)))}`+(o?e.books.map(b=>bookHTML(e,b)).join('')+addBook(e):'')+'</div>'}).join('')}
+ +S.exams.map(e=>{const o=open[e.id];return `<div class=card><div class=row>${ring(prog(allSecs(e)))}<b data-a=toggle data-e=${e.id} style="flex:1;cursor:pointer">${o?'▾':'▸'} ${esc(e.name)}</b><input type=date style="flex:0 0 auto" value=${e.date} data-c=exd data-e=${e.id}><button data-a=delExam data-e=${e.id}>🗑</button></div>`+(o?e.books.map(b=>bookHTML(e,b)).join('')+addBook(e):'')+'</div>'}).join('')}
 function vSet(){const s=S.set,f=(k,l)=>`<div class=row><span style=flex:1>${l}</span><input class=n type=number min=0 value=${s[k]} data-c=set data-f=${k}></div>`;
- return `<h2>Impostazioni</h2><div class=card>${f('reads','Letture per sezione (predefinito)')}${f('reps','Ripetizioni per sezione (predefinito)')}${f('gap','Giorni minimi tra due passaggi della stessa sezione dopo le letture')}${f('margin','Giorni di margine prima dell\'esame')}${f('block','Pagine per blocco (se i capitoli sono disattivati)')}
+ return `<h2>Impostazioni</h2><div class=card>${f('reads','Letture per sezione (lettura + riletture)')}
+ <div class=row><label style=flex:1><input type=checkbox ${s.oral?'checked':''} data-c=oral> 🗣 Ripetizione orale (facoltativa)</label><input class=n type=number min=1 value=${s.reps} data-c=set data-f=reps></div>
+ ${f('gap','Giorni minimi tra due passaggi della stessa sezione dopo le letture')}${f('margin','Giorni di margine prima dell\'esame')}${f('block','Pagine per blocco (se i capitoli sono disattivati)')}
  <div class=row><span>Giorni di riposo:</span>${['Dom','Lun','Mar','Mer','Gio','Ven','Sab'].map((n,i)=>`<label><input type=checkbox ${s.rest.includes(i)?'checked':''} data-c=rest data-i=${i}> ${n}</label>`).join(' ')}</div></div>
  <div class=card><div class=row><button data-a=exp>Esporta backup JSON</button><label>Importa: <input type=file accept=.json data-c=imp></label></div>
  <p><small>${FIREBASE_CONFIG?`Sincronizzato come ${esc(user?.email)}`:'Modalità solo locale: configura Firebase per sincronizzare.'}</small></p>${FIREBASE_CONFIG?'<button data-a=out>Esci</button>':''}</div>`}
-function render(){const a=$('#app');
- if(FIREBASE_CONFIG&&!user){a.innerHTML=`<main><div class=card><h2>📚 Planner Esami</h2><div class=row><input id=em type=email placeholder=Email></div><div class=row><input id=pw type=password placeholder=Password></div><div class=row><button class=pri data-a=login>Accedi</button><button data-a=reg>Crea account</button></div></div></main>`;return}
- a.innerHTML=`<header><b>📚 Planner</b><nav>${['oggi','esami','impostazioni'].map(t=>`<button data-a=tab data-t=${t} class="${tab==t?'on':''}">${t}</button>`).join('')}</nav></header><main>${{oggi:vOggi,esami:vEsami,impostazioni:vSet}[tab]()}</main>`}
+function render(){const a=$('#app'),y=scrollY;
+ if(FIREBASE_CONFIG&&!user){a.innerHTML=`<header>📚 Planner Esami</header><main><div class=card><div class=row><input id=em type=email placeholder=Email></div><div class=row><input id=pw type=password placeholder=Password></div><div class=row><button class=pri data-a=login>Accedi</button><button data-a=reg>Crea account</button></div></div></main>`;return}
+ a.innerHTML=`<header>📚 Planner Esami</header><main>${{oggi:vOggi,esami:vEsami,impostazioni:vSet}[tab]()}</main><nav>${[['oggi','🎯','Oggi'],['esami','📚','Esami'],['impostazioni','⚙️','Impostazioni']].map(([t,i,l])=>`<button data-a=tab data-t=${t} class="${tab==t?'on':''}"><b>${i}</b>${l}</button>`).join('')}</nav>`;scrollTo(0,y)}
 
 // ===== capitoli =====
 function mk(list){const{from,to}=ch.b,l=list.filter(x=>x.a==null||(x.a>=from&&x.a<=to));
  return l.map((x,i)=>({t:x.t,a:x.a,b:l[i+1]&&l[i+1].a!=null&&x.a!=null?l[i+1].a-1:(i==l.length-1?to:null)}))}
 function dlg(){const d=$('#dlg');if(!ch){d.close();return}
  d.innerHTML=`<h3>Capitoli: ${esc(ch.b.title)}</h3><small>Pagine ${ch.b.from}–${ch.b.to}. Scegli un metodo, controlla la tabella e conferma.</small>
- <div class=row><button data-a=search>🔎 Cerca online</button><button data-a=blocks>Blocchi da ${S.set.block} pag.</button><button data-a=single>Sezione unica (senza capitoli)</button></div>
- <textarea id=paste rows=4 placeholder="Oppure incolla l'indice, una riga per capitolo. Esempio: Introduzione ..... 12"></textarea><div class=row><button data-a=parse>Analizza indice</button></div>
- <p>${ch.msg||''}</p><div class=tbl>${ch.rows.map((r,i)=>`<div class=row><input data-c=row data-i=${i} data-f=t value="${esc(r.t)}"><input class=n type=number placeholder=da data-c=row data-i=${i} data-f=a value="${r.a??''}"><input class=n type=number placeholder=a data-c=row data-i=${i} data-f=b value="${r.b??''}"><button data-a=delrow data-i=${i}>✕</button></div>`).join('')}</div>
+ <div class=row><button data-a=search>🔎 Cerca online</button><button data-a=blocks>Blocchi da ${S.set.block} pag.</button><button data-a=single>Sezione unica</button></div>
+ <textarea id=paste rows=3 placeholder="Oppure incolla l'indice, una riga per capitolo. Esempio: Introduzione ..... 12"></textarea><div class=row><button data-a=parse>Analizza indice</button></div>
+ <p>${ch.msg||''}</p>${ch.cands?ch.cands.map((c,i)=>`<div class=row><span style=flex:1>${esc(c.l)} <small>${c.toc?'indice ✓':'senza indice'}</small></span><button ${c.toc?'':'disabled'} data-a=use data-i=${i}>Usa</button></div>`).join(''):''}
+ <div class=tbl>${ch.rows.map((r,i)=>`<div class=row><input data-c=row data-i=${i} data-f=t value="${esc(r.t)}"><input class=n type=number placeholder=da data-c=row data-i=${i} data-f=a value="${r.a??''}"><input class=n type=number placeholder=a data-c=row data-i=${i} data-f=b value="${r.b??''}"><button data-a=delrow data-i=${i}>✕</button></div>`).join('')}</div>
  <div class=row><button data-a=addrow>+ Riga</button><button class=pri data-a=ok>Conferma e assegna</button><button data-a=cancel>Annulla</button></div>`;if(!d.open)d.showModal()}
-async function search(){ch.msg='Cerco su Open Library…';dlg();
- try{const r=await(await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(ch.b.title)}&limit=5&fields=key,title,first_publish_year`)).json();
-  for(const w of r.docs){const ed=await(await fetch(`https://openlibrary.org${w.key}/editions.json?limit=40`)).json(),e=ed.entries?.find(x=>x.table_of_contents?.length>2);
-   if(e){const list=e.table_of_contents.map(x=>({t:((x.label?x.label+' ':'')+(x.title||'')).trim(),a:parseInt(x.pagenum)||null}));
-    ch.rows=mk(list);ch.msg=`Trovato "${esc(w.title)}" (${w.first_publish_year||'?'}) su Open Library. Vuoi usarlo? Controlla titoli e pagine, poi conferma.`+(list.some(x=>!x.a)?' ⚠ Mancano alcune pagine: completale o incolla l\'indice.':'');return dlg()}}
-  ch.msg='Nessun indice trovato online: incolla l\'indice o inserisci le righe a mano.'}catch(e){ch.msg='Ricerca non riuscita (connessione?).'}dlg()}
+async function search(){const b=ch.b;ch.msg='Cerco su Open Library…';ch.cands=null;dlg();
+ try{const q=new URLSearchParams({limit:5,fields:'key,title,author_name,first_publish_year'});
+  if(b.isbn)q.set('isbn',b.isbn);else{q.set('title',b.title);if(b.author)q.set('author',b.author);if(b.pub)q.set('publisher',b.pub)}
+  const r=await(await fetch('https://openlibrary.org/search.json?'+q)).json();
+  ch.cands=(await Promise.all((r.docs||[]).map(async w=>{try{const ed=await(await fetch(`https://openlibrary.org${w.key}/editions.json?limit=40`)).json(),L=(ed.entries||[]).filter(x=>x.table_of_contents?.length>2),
+   e=L.find(x=>b.pub&&(x.publishers||[]).join(' ').toLowerCase().includes(b.pub.toLowerCase()))||L[0];
+   return{l:`${w.title} — ${(w.author_name||[]).slice(0,2).join(', ')} (${w.first_publish_year||'?'}${e?.publishers?', '+e.publishers[0]:''})`,toc:e?e.table_of_contents.map(x=>({t:((x.label?x.label+' ':'')+(x.title||'')).trim(),a:parseInt(x.pagenum)||null})):null}}catch{return null}}))).filter(Boolean);
+  ch.msg=ch.cands.length?'Scegli l\'edizione giusta. Le pagine possono riferirsi a un\'altra edizione: controlla la tabella prima di confermare.':'Nessun risultato: prova a incollare l\'indice.'}catch{ch.msg='Ricerca non riuscita (connessione?).'}dlg()}
 const parseIdx=t=>t.split('\n').map(l=>l.match(/^\s*(.+?)[\s.·…_–-]*(\d{1,4})\s*$/)).filter(m=>m&&m[1].trim().length>1).map(m=>({t:m[1].trim(),a:+m[2]}));
 
 // ===== azioni =====
+const setP=(d,v)=>{const{b,s}=F(d);touch(s,b);s.p[+d.i]=Math.min(s.b,Math.max(s.a-1,v));s.last=today();save()};
 const H={
- tab:d=>{tab=d.t;render()},toggle:d=>{open[d.e]=!open[d.e];render()},
+ tab:d=>{tab=d.t;scrollTo(0,0);render()},toggle:d=>{open[d.e]=!open[d.e];render()},
  addExam:()=>{const n=$('#xn').value.trim(),dt=$('#xd').value;if(!n||!dt)return alert('Inserisci nome e data.');S.exams.push({id:uid(),name:n,date:dt,books:[]});save()},
  delExam:d=>{if(confirm('Eliminare l\'esame?')){S.exams=S.exams.filter(e=>e.id!=d.e);save()}},
- addBook:d=>{const{e}=F(d),t=$('#bt-'+d.e).value.trim(),f=+$('#bf-'+d.e).value,z=+$('#bz-'+d.e).value,ty=$('#by-'+d.e).value;
+ addBook:d=>{const{e}=F(d),g=k=>$(`#${k}-${d.e}`).value.trim(),t=g('bt'),f=+g('bf'),z=+g('bz');
   if(!t||!f||!z||z<f)return alert('Inserisci titolo e pagine valide.');
-  const b={id:uid(),title:t,type:ty,from:f,to:z,reads:null,reps:null,secs:[{id:uid(),t,a:f,b:z,n:0,last:''}]};e.books.push(b);save();
-  if(ty=='libro')H.chap({e:e.id,b:b.id})},
+  const b={id:uid(),title:t,type:g('by'),author:g('ba'),pub:g('bp'),year:g('bn'),isbn:g('bi').replace(/[^0-9Xx]/g,''),from:f,to:z,reads:null,reps:null,secs:[{id:uid(),t,a:f,b:z,p:[],last:''}]};
+  e.books.push(b);save();if(b.type=='libro')H.chap({e:e.id,b:b.id})},
  delBook:d=>{const{e}=F(d);if(confirm('Eliminare?')){e.books=e.books.filter(b=>b.id!=d.b);save()}},
- inc:d=>{const{s}=F(d);s.n++;s.last=today();save()},dec:d=>{const{s}=F(d);s.n=Math.max(0,s.n-1);save()},
- ovr:d=>{const{b,s}=F(d),v=prompt('Letture,ripetizioni per questa sezione (es. 3,2). Vuoto = valori del libro/predefiniti.',`${RD(s,b)},${RP(s,b)}`);if(v===null)return;
+ upto:d=>setP(d,+d.v),undo:d=>{const{s}=F(d);s.p.length=Math.min(s.p.length,+d.i);save()},
+ ovr:d=>{const{b,s}=F(d),v=prompt('Letture,ripetizioni orali per questa sezione (es. 3,0: 0 = nessuna ripetizione orale). Vuoto = valori del libro/predefiniti.',`${NR(s,b)},${NP(s,b)}`);if(v===null)return;
   const m=v.split(',').map(x=>parseInt(x));if(v.trim()==''){s.reads=s.reps=null}else if(m.length==2&&m.every(x=>x>=0)){s.reads=m[0];s.reps=m[1]}save()},
- chap:d=>{const{e,b}=F(d);ch={e,b,rows:b.secs.map(s=>({t:s.t,a:s.a,b:s.b})),msg:''};dlg()},
- search,blocks:()=>{const{from,to}=ch.b,N=Math.max(1,S.set.block);ch.rows=[];for(let a=from;a<=to;a+=N)ch.rows.push({t:`Pag. ${a}–${Math.min(a+N-1,to)}`,a,b:Math.min(a+N-1,to)});ch.msg='Blocchi generati.';dlg()},
+ chap:d=>{const{e,b}=F(d);ch={e,b,rows:b.secs.map(s=>({t:s.t,a:s.a,b:s.b})),msg:'',cands:null};dlg()},
+ search,use:d=>{const c=ch.cands[+d.i];ch.rows=mk(c.toc);ch.msg='Indice caricato: controlla titoli e pagine.'+(c.toc.some(x=>!x.a)?' ⚠ Mancano alcune pagine: completale o incolla l\'indice.':'');dlg()},
+ blocks:()=>{const{from,to}=ch.b,N=Math.max(1,S.set.block);ch.rows=[];for(let a=from;a<=to;a+=N)ch.rows.push({t:`Pag. ${a}–${Math.min(a+N-1,to)}`,a,b:Math.min(a+N-1,to)});ch.msg='Blocchi generati.';dlg()},
  single:()=>{ch.rows=[{t:ch.b.title,a:ch.b.from,b:ch.b.to}];ch.msg='Una sola sezione.';dlg()},
  parse:()=>{const l=parseIdx($('#paste').value);if(!l.length){ch.msg='Non ho riconosciuto righe "titolo + pagina".';return dlg()}ch.rows=mk(l);ch.msg='Indice analizzato: controlla e conferma.';dlg()},
  delrow:d=>{ch.rows.splice(+d.i,1);dlg()},addrow:()=>{ch.rows.push({t:'',a:null,b:null});dlg()},cancel:()=>{ch=null;dlg()},
  ok:()=>{const r=ch.rows;if(!r.length||r.some(x=>!x.t||!x.a||!x.b||x.b<x.a))return alert('Ogni riga ha bisogno di titolo, pagina iniziale e finale valide.');
-  const old=ch.b.secs;if(old.some(s=>s.n>0)&&!confirm('I progressi si mantengono solo per le sezioni con le stesse pagine. Continuare?'))return;
-  ch.b.secs=r.map(x=>{const o=old.find(s=>s.a==x.a&&s.b==x.b);return o?{...o,t:x.t}:{id:uid(),t:x.t,a:x.a,b:x.b,n:0,last:''}});ch=null;dlg();save()},
+  const old=ch.b.secs;if(old.some(s=>s.p.length)&&!confirm('I progressi si mantengono solo per le sezioni con le stesse pagine. Continuare?'))return;
+  ch.b.secs=r.map(x=>{const o=old.find(s=>s.a==x.a&&s.b==x.b);return o?{...o,t:x.t}:{id:uid(),t:x.t,a:x.a,b:x.b,p:[],last:''}});ch=null;dlg();save()},
  exp:()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='planner-backup.json';a.click()},
  login:()=>api.login($('#em').value,$('#pw').value).catch(e=>alert(e.message)),reg:()=>api.reg($('#em').value,$('#pw').value).catch(e=>alert(e.message)),out:()=>api.out()};
 const C={
- bk:(d,v)=>{const{b}=F(d);b[d.f]=v===''?null:Math.max(0,+v);save()},set:(d,v)=>{S.set[d.f]=Math.max(0,+v);save()},
- rest:(d,v,el)=>{const r=S.set.rest,i=+d.i;S.set.rest=el.checked?[...r,i]:r.filter(x=>x!=i);save()},
+ pp:(d,v)=>setP(d,v===''?-1e9:+v),bk:(d,v)=>{const{b}=F(d);b[d.f]=v===''?null:Math.max(0,+v);save()},set:(d,v)=>{S.set[d.f]=Math.max(0,+v);save()},
+ oral:(d,v,el)=>{S.set.oral=el.checked;save()},rest:(d,v,el)=>{const r=S.set.rest,i=+d.i;S.set.rest=el.checked?[...r,i]:r.filter(x=>x!=i);save()},
  exd:(d,v)=>{F(d).e.date=v;save()},row:(d,v)=>{ch.rows[+d.i][d.f]=d.f=='t'?v:(v===''?null:+v)},
- imp:(d,v,el)=>{const f=el.files[0];if(!f)return;f.text().then(t=>{try{S=JSON.parse(t);S.set={...DEF,...S.set};save()}catch{alert('File non valido.')}})}};
+ imp:(d,v,el)=>{const f=el.files[0];if(!f)return;f.text().then(t=>{try{S=JSON.parse(t);init();save()}catch{alert('File non valido.')}})}};
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el)H[el.dataset.a]?.(el.dataset)});
 document.addEventListener('change',e=>{const el=e.target.closest('[data-c]');if(el)C[el.dataset.c]?.(el.dataset,el.value,el)});
+document.addEventListener('input',e=>{const el=e.target;if(el.dataset.c=='pp'){const p=el.closest('.pb');p.querySelectorAll('input').forEach(x=>{if(x!==el)x.value=el.value})}});
 
 // ===== sincronizzazione Firebase =====
 async function cloud(){if(!FIREBASE_CONFIG)return;const V='https://www.gstatic.com/firebasejs/10.12.2/';
@@ -133,6 +169,6 @@ async function cloud(){if(!FIREBASE_CONFIG)return;const V='https://www.gstatic.c
  Au.onAuthStateChanged(auth,u=>{user=u;unsub?.();if(!u)return render();const ref=Fs.doc(db,'users',u.uid);
   api.push=s=>Fs.setDoc(ref,{json:JSON.stringify(s),ts:Date.now()});
   unsub=Fs.onSnapshot(ref,sn=>{if(sn.metadata.hasPendingWrites)return;
-   if(sn.exists()){S=JSON.parse(sn.data().json);S.set={...DEF,...S.set};localStorage.setItem('pe',JSON.stringify(S))}else api.push(S);render()})})}
+   if(sn.exists()){S=JSON.parse(sn.data().json);init();localStorage.setItem('pe',JSON.stringify(S));if(S.exams.some(e=>e.books.some(b=>b.secs.some(s=>s.n!==undefined))))api.push(S)}else api.push(S);render()})})}
 render();cloud();if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 </script></body></html>
