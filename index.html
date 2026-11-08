@@ -41,14 +41,7 @@ textarea{width:100%}.tbl{max-height:34vh;overflow:auto}details summary{cursor:po
 </style></head><body><div id="app"></div><dialog id="dlg"></dialog>
 <script type="module">
 // ===== CONFIGURAZIONE FIREBASE: incolla qui l'oggetto firebaseConfig. Se resta null l'app funziona solo in locale. =====
-const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyDhlsiW65Nc9fHK1nbuT_XO3J2bKLdmYVc",
-    authDomain: "planner-esami.firebaseapp.com",
-    projectId: "planner-esami",
-    storageBucket: "planner-esami.firebasestorage.app",
-    messagingSenderId: "622617303088",
-    appId: "1:622617303088:web:0be54f941f8244440335f5"
-  };
+const FIREBASE_CONFIG = null;
 // ========================================================================================================================
 const $=s=>document.querySelector(s),uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -81,24 +74,31 @@ document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.target.mat
 const errIt=e=>({'auth/invalid-credential':'Email o password non corretta.','auth/wrong-password':'Password non corretta.','auth/user-not-found':'Nessun account con questa email: se è la prima volta, tocca Registrati.','auth/invalid-email':'L\'indirizzo email non è valido.','auth/email-already-in-use':'Questa email è già registrata: tocca Accedi.','auth/weak-password':'La password è troppo corta: servono almeno 6 caratteri.','auth/missing-password':'Inserisci la password.','auth/missing-email':'Inserisci l\'email.','auth/too-many-requests':'Troppi tentativi: attendi qualche minuto e riprova.','auth/network-request-failed':'Problema di connessione: controlla la rete.','auth/user-disabled':'Questo account è stato disattivato.'}[e.code]||'Qualcosa è andato storto, riprova.');
 const studyDays=end=>{let c=0;const d=D(today()),e=D(end);for(;d<=e;d.setDate(d.getDate()+1))if(!S.set.rest.includes(d.getDay()))c++;return Math.max(c,1)};
 
+const dl=(e,x)=>e.dl?.[x.key]||'',dfmt=d=>D(d).toLocaleDateString('it-IT',{day:'numeric',month:'short'}),dleft=d=>Math.round((D(d)-D(today()))/864e5);
+const dtxt=(e,x)=>{const d=dl(e,x);if(!d)return '';if(x.p>=1)return ' · ✓ raggiunto';const n=dleft(d);return n<0?` · ⚠ entro il ${dfmt(d)}: in ritardo di ${-n} giorni`:` · entro il ${dfmt(d)} (${n==0?'oggi':'tra '+n+' giorni'})`};
+const modeChoice=(e,late)=>`<div class=next><small>Come vuoi organizzare lo studio?</small><div class=row><button class="${e.mode=='cp'?'pri':''}" style="flex:1" data-a=mode data-v=cp data-e=${e.id}>🎯 Calibra sul prossimo traguardo</button><button class="${e.mode=='cp'?'':'pri'}" style="flex:1" data-a=mode data-v=all data-e=${e.id}>⚖️ Dividi il lavoro fino all'esame</button></div>${e.mode=='cp'&&late?'<small>⚠ La scadenza del prossimo traguardo è già passata: sposta la data nella scheda Esami per calibrare su di essa. Per ora il lavoro è diviso fino all\'esame.</small>':''}</div>`;
+function dlPanel(e){const c=cps(allSecs(e));if(!c.length)return '';
+ return `<div class=sub><b>📅 Scadenze dei traguardi</b> <small>(facoltative)</small>${c.map(x=>`<div class=row><span style=flex:1>${x.o?'🗣 ':''}${x.k+1}. ${x.l}${x.p>=1?' ✓':''}</span><input type=date style="flex:0 0 auto" value="${e.dl?.[x.key]||''}" data-c=dl data-e=${e.id} data-k=${x.key}></div>`).join('')}</div>`}
 function cps(as){const T=Math.max(0,...as.map(([s,b])=>TT(s,b))),r=[];
- for(let k=0;k<T;k++){const bk=new Map();let lab='',o=true;
-  as.forEach(([s,b])=>{if(TT(s,b)>k){const x=bk.get(b)||{w:0,d:0};x.w+=pg(s);x.d+=dn(s,k);bk.set(b,x);if(!lab)lab=pl(k,NR(s,b),NP(s,b));if(k<NR(s,b))o=false}});
+ for(let k=0;k<T;k++){const bk=new Map();let lab='',key='',o=true;
+  as.forEach(([s,b])=>{if(TT(s,b)>k){const x=bk.get(b)||{w:0,d:0};x.w+=pg(s);x.d+=dn(s,k);bk.set(b,x);if(!lab){lab=pl(k,NR(s,b),NP(s,b));key=k<NR(s,b)?'r'+k:'o'+(k-NR(s,b))}if(k<NR(s,b))o=false}});
   let w=0,d=0;bk.forEach(x=>{w+=x.w;d+=x.d});
-  r.push({k,l:lab,o,p:w?d/w:0,miss:[...bk].filter(([b,x])=>x.d<x.w).map(([b,x])=>`${b.title} ${Math.round(x.d/x.w*100)}%`)})}
+  r.push({k,key,l:lab,o,p:w?d/w:0,miss:[...bk].filter(([b,x])=>x.d<x.w).map(([b,x])=>`${b.title} ${Math.round(x.d/x.w*100)}%`)})}
  return r}
-function cpHTML(as){const c=cps(as);if(!c.length)return '';const nx=c.find(x=>x.p<1),pc=x=>Math.round(x.p*100);
+function cpHTML(as,e){const c=cps(as);if(!c.length)return '';const nx=c.find(x=>x.p<1),pc=x=>Math.round(x.p*100);
  return `<div class=cps>${c.map(x=>`<div class="cp ${x.o?'oral':''}"><div class=seg><i style="width:${pc(x)}%"></i></div><div class=fl>${x.p>=1?'🚩':x.k+1}${x.p<1&&x.p>0?' · '+pc(x)+'%':''}</div></div>`).join('')}</div>`
- +(nx?`<div class=next><b>Prossimo traguardo: ${nx.o?'🗣 ':''}${nx.l}</b> <small>${pc(nx)}%${nx.miss.length?' · mancano: '+nx.miss.map(esc).join(', '):''}</small></div>`+c.filter(x=>x!==nx&&x.p>0&&x.p<1).map(x=>`<div><small>${x.o?'🗣 ':''}${x.l}: ${pc(x)}% già avviata</small></div>`).join(''):'<div class=next><b>🎉 Tutti i traguardi raggiunti</b></div>')}
+ +(nx?`<div class=next><b>Prossimo traguardo: ${nx.o?'🗣 ':''}${nx.l}</b> <small>${pc(nx)}%${nx.miss.length?' · mancano: '+nx.miss.map(esc).join(', '):''}${dtxt(e,nx)}</small></div>`+c.filter(x=>x!==nx&&x.p<1&&(x.p>0||dl(e,x))).map(x=>`<div><small>${x.o?'🗣 ':''}${x.l}: ${x.p>0?pc(x)+'% già avviata':'non ancora iniziata'}${dtxt(e,x)}</small></div>`).join(''):'<div class=next><b>🎉 Tutti i traguardi raggiunti</b></div>')}
 function vOggi(){const t=today(),ex=S.exams.filter(e=>e.date>=t).sort((a,b)=>a.date<b.date?-1:1),g=prog(S.exams.flatMap(allSecs));
  let h=`<div class=card><div class=row>${ring(g)}<div><b>Progresso generale</b><br><small>Letture, riletture e ripetizioni orali di tutti gli esami</small></div></div></div>`;
  if(!ex.length)return h+'<p>Aggiungi un esame nella scheda Esami.</p>';
  for(const e of ex){const as=allSecs(e),end=iso(new Date(D(e.date).getTime()-S.set.margin*864e5)),days=studyDays(end<t?t:end),left=Math.round((D(e.date)-D(t))/864e5);
   const rem=as.reduce((x,[s,b])=>x+pg(s)*TT(s,b)*(1-frac(s,b)),0),dt=as.reduce((x,[s,b])=>x+(s.day?.d===t?Math.max(0,sd(s,b)-s.day.v):0),0);
-  const target=Math.ceil((rem+dt)/days);let need=target-dt;
-  const cand=as.filter(([s,b])=>{const a=act(s,b);return a>=0&&(a<NR(s,b)||s.day?.d===t||!s.last||(D(t)-D(s.last))/864e5>=S.set.gap)}).sort((x,y)=>act(...x)-act(...y));
+  const cc=cps(as),tg=cc.find(x=>dl(e,x)&&x.p<1),useCp=e.mode=='cp'&&tg&&dl(e,tg)>=t,late=!!tg&&dl(e,tg)<t;
+  let remK=0;if(useCp)as.forEach(([s,b])=>{if(TT(s,b)>tg.k){remK+=pg(s)*(tg.k+1);for(let i=0;i<=tg.k;i++)remK-=dn(s,i)}});
+  const target=useCp?Math.ceil((remK+dt)/studyDays(dl(e,tg))):Math.ceil((rem+dt)/days);let need=target-dt;
+  const cand=as.filter(([s,b])=>{const a=act(s,b);return a>=0&&(!useCp||a<=tg.k)&&(a<NR(s,b)||s.day?.d===t||!s.last||(D(t)-D(s.last))/864e5>=S.set.gap)}).sort((x,y)=>act(...x)-act(...y));
   const items=[];for(const[s,b]of cand){if(need<=0)break;const a=act(s,b),st=s.a+dn(s,a),tk=Math.min(s.b-st+1,need);items.push({s,b,a,st,en:st+tk-1});need-=tk}
-  h+=`<div class=card><div class=row>${ring(prog(as))}<div><b>${esc(e.name)}</b><br><small>tra ${left} giorni · oggi circa ${target} pagine${end<t?' · margine di sicurezza superato':''}</small></div></div>${cpHTML(as)}`
+  h+=`<div class=card><div class=row>${ring(prog(as))}<div><b>${esc(e.name)}</b><br><small>tra ${left} giorni · oggi circa ${target} pagine${useCp?' per «'+tg.l+'»':''}${end<t?' · margine di sicurezza superato':''}</small></div></div>${cpHTML(as,e)}${tg?modeChoice(e,late):''}`
    +items.map(({s,b,a,st,en})=>{const R=NR(s,b),P=NP(s,b),ids=`data-e=${e.id} data-b=${b.id} data-s=${s.id}`;
     return `<div class=item><div class=row><b style=flex:1>${esc(s.t)}</b><small>${esc(b.title)}</small></div><div class=row><span class="tag ${a>=R?'oral':''}">${a>=R?'🗣 ':''}${pl(a,R,P)}${a>=R?' (facoltativa)':''}</span><span style=flex:1>pag. ${st}–${en}</span><button class=pri data-a=upto data-i=${a} data-v=${en} ${ids}>✓ Fatto fino a ${en}</button></div></div>`}).join('')
    +(!items.length?`<p><small>${dt>0&&need<=0?'🎉 Obiettivo di oggi raggiunto!':'Niente da fare oggi (ripetizioni in attesa di distanziamento, oppure tutto completato).'}</small></p>`:need<=0&&dt>0?'':'')+'</div>'}
@@ -119,7 +119,7 @@ const addBook=e=>`<div class=sub><b>Aggiungi libro o appunti</b><div class=row><
 <details><summary>Autore, editore, anno, ISBN (aiutano la ricerca dei capitoli)</summary><div class=row><input id=ba-${e.id} placeholder=Autore><input id=bp-${e.id} placeholder=Editore></div><div class=row><input id=bn-${e.id} placeholder="Anno"><input id=bi-${e.id} placeholder="ISBN"></div></details>
 <div class=row><input class=n id=bf-${e.id} type=number placeholder="da pag." value=1><input class=n id=bz-${e.id} type=number placeholder="a pag."><button class=pri data-a=addBook data-e=${e.id}>Aggiungi</button></div></div>`;
 function vEsami(){return `<h2>Esami</h2><div class=card><div class=row><input id=xn placeholder="Nome esame"><input id=xd type=date><button class=pri data-a=addExam>Aggiungi</button></div></div>`
- +S.exams.map(e=>{const o=open[e.id];return `<div class=card><div class=row><button class=chev data-a=toggle data-e=${e.id}>${o?'▲':'▼'}</button>${ring(prog(allSecs(e)))}<b data-a=toggle data-e=${e.id} style="flex:1;cursor:pointer">${esc(e.name)}</b><input type=date style="flex:0 0 auto" value=${e.date} data-c=exd data-e=${e.id}><button data-a=renExam data-e=${e.id}>✏️</button><button data-a=delExam data-e=${e.id}>🗑</button></div>${cpHTML(allSecs(e))}`+(o?e.books.map(b=>bookHTML(e,b)).join('')+addBook(e):'')+'</div>'}).join('')}
+ +S.exams.map(e=>{const o=open[e.id];return `<div class=card><div class=row><button class=chev data-a=toggle data-e=${e.id}>${o?'▲':'▼'}</button>${ring(prog(allSecs(e)))}<b data-a=toggle data-e=${e.id} style="flex:1;cursor:pointer">${esc(e.name)}</b><input type=date style="flex:0 0 auto" value=${e.date} data-c=exd data-e=${e.id}><button data-a=renExam data-e=${e.id}>✏️</button><button data-a=delExam data-e=${e.id}>🗑</button></div>${cpHTML(allSecs(e),e)}`+(o?dlPanel(e)+e.books.map(b=>bookHTML(e,b)).join('')+addBook(e):'')+'</div>'}).join('')}
 function vSet(){const s=S.set,f=(k,l)=>`<div class=row><span style=flex:1>${l}</span><input class=n type=number min=0 value=${s[k]} data-c=set data-f=${k}></div>`;
  return `<h2>Impostazioni</h2><div class=card><small>Valori standard: puoi cambiarli per ogni libro e per ogni capitolo (⚙ Passaggi).</small>${f('reads','Letture per sezione (lettura + riletture)')}
  <div class=row><label style=flex:1><input type=checkbox ${s.oral?'checked':''} data-c=oral> 🗣 Ripetizione orale (facoltativa)</label><input class=n type=number min=1 value=${s.reps} data-c=set data-f=reps></div>
@@ -178,7 +178,7 @@ const H={
  ok:()=>{const r=ch.rows;if(!r.length||r.some(x=>!x.t||!x.a||!x.b||x.b<x.a||x.a<ch.b.from||x.b>ch.b.to))return alert('Ogni riga ha bisogno di titolo e pagine valide, comprese tra '+ch.b.from+' e '+ch.b.to+'.');
   const old=ch.b.secs;if(old.some(s=>s.p.length)&&!confirm('I progressi si mantengono solo per le sezioni con le stesse pagine. Continuare?'))return;
   ch.b.secs=r.map(x=>{const o=old.find(s=>s.a==x.a&&s.b==x.b);return o?{...o,t:x.t}:{id:uid(),t:x.t,a:x.a,b:x.b,p:[],last:''}});ch=null;dlg();save()},
- tbook:d=>{const k='b'+d.b;open[k]=!open[k];render()},uundo:()=>histUndo(),uredo:()=>histRedo(),uhide:()=>{hide=true;render()},
+ mode:d=>{const{e}=F(d);e.mode=d.v;save()},tbook:d=>{const k='b'+d.b;open[k]=!open[k];render()},uundo:()=>histUndo(),uredo:()=>histRedo(),uhide:()=>{hide=true;render()},
  forgot:()=>{const m=$('#em').value.trim();if(!m)return alert('Scrivi la tua email nel campo Email, poi tocca di nuovo "Password dimenticata?".');api.reset(m).then(()=>alert('Se l\'indirizzo è registrato, riceverai un\'email con il link per scegliere una nuova password. Controlla anche lo spam.')).catch(e=>alert(errIt(e)))},
  renExam:d=>{const{e}=F(d),n=prompt('Nome esame',e.name);if(n?.trim()){e.name=n.trim();save()}},
  edit:d=>{const{e,b}=F(d);eb={e,b};dlg()},ecancel:()=>{eb=null;dlg()},
@@ -191,6 +191,11 @@ const H={
  login:()=>api.login($('#em').value.trim(),$('#pw').value).catch(e=>alert(errIt(e))),reg:()=>api.reg($('#em').value.trim(),$('#pw').value).catch(e=>alert(errIt(e))),out:()=>api.out()};
 const C={
  sov:(d,v)=>{const{s}=F(d);s[d.f]=v===''?null:Math.max(0,+v);save()},pp:(d,v)=>setP(d,v===''?-1e9:+v),bk:(d,v)=>{const{b}=F(d);b[d.f]=v===''?null:Math.max(0,+v);save()},set:(d,v)=>{S.set[d.f]=Math.max(0,+v);save()},
+ dl:(d,v)=>{const{e}=F(d),nd={...(e.dl||{})};if(v)nd[d.k]=v;else delete nd[d.k];
+  const ds=cps(allSecs(e)).map(x=>nd[x.key]).filter(Boolean);
+  if(ds.some(x=>x>e.date)){alert('La scadenza non può essere dopo la data dell\'esame ('+e.date+').');return render()}
+  if(ds.some((x,i)=>i&&x<ds[i-1])){alert('Le scadenze devono seguire l\'ordine dei traguardi: un traguardo successivo non può avere una data precedente.');return render()}
+  e.dl=nd;save()},
  ua:(d,v,el)=>{localStorage.setItem('peua',el.checked?'1':'');render()},oral:(d,v,el)=>{S.set.oral=el.checked;save()},rest:(d,v,el)=>{const r=S.set.rest,i=+d.i;S.set.rest=el.checked?[...r,i]:r.filter(x=>x!=i);save()},
  exd:(d,v)=>{F(d).e.date=v;save()},row:(d,v)=>{ch.rows[+d.i][d.f]=d.f=='t'?v:(v===''?null:+v)},
  imp:(d,v,el)=>{const f=el.files[0];if(!f)return;f.text().then(t=>{try{S=JSON.parse(t);init();save()}catch{alert('File non valido.')}})}};
