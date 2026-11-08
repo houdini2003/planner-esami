@@ -41,7 +41,14 @@ textarea{width:100%}.tbl{max-height:34vh;overflow:auto}details summary{cursor:po
 </style></head><body><div id="app"></div><dialog id="dlg"></dialog>
 <script type="module">
 // ===== CONFIGURAZIONE FIREBASE: incolla qui l'oggetto firebaseConfig. Se resta null l'app funziona solo in locale. =====
-const FIREBASE_CONFIG = null;
+const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDhlsiW65Nc9fHK1nbuT_XO3J2bKLdmYVc",
+    authDomain: "planner-esami.firebaseapp.com",
+    projectId: "planner-esami",
+    storageBucket: "planner-esami.firebasestorage.app",
+    messagingSenderId: "622617303088",
+    appId: "1:622617303088:web:0be54f941f8244440335f5"
+  };
 // ========================================================================================================================
 const $=s=>document.querySelector(s),uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
